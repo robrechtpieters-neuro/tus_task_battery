@@ -1,0 +1,20 @@
+# Normalise line endings so the repository is identical whether it is cloned
+# on the Windows stimulus PC or on a collaborator's Mac or Linux machine.
+# Without this, every file shows as modified after a clone on the other OS.
+* text=auto
+
+*.py    text diff=python
+*.yaml  text
+*.yml   text
+*.md    text
+*.txt   text
+
+# Windows launchers must keep CRLF or they will not run when double-clicked
+*.bat   text eol=crlf
+
+*.png   binary
+*.jpg   binary
+*.pdf   binary
+*.docx  binary
+*.pptx  binary
+*.zip   binary
