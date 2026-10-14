@@ -1,0 +1,32 @@
+# =====================================================================
+#  EXAMPLE override file
+#
+#      python run_experiment.py --config example_override.yaml
+#
+#  Only the keys listed here are changed; everything else comes from
+#  default.yaml. This is the recommended way to adapt the battery to a
+#  particular computer without editing the master config.
+#
+#  The values below describe a plain 60 Hz laptop screen - the machine the
+#  battery was first test-run on. Replace them with your own; get the real
+#  numbers from `python tools/check_install.py`, which reports the measured
+#  refresh rate and the actual screen resolution.
+# =====================================================================
+
+display:
+  nominal_refresh_hz: 60
+  monitor:
+    name: "dev_laptop"
+    width_cm: 34.0
+    distance_cm: 60.0
+    resolution: [1536, 864]
+
+# A 60 Hz screen cannot show a 100 ms stimulus exactly (it becomes 6 frames
+# = 100.0 ms here, but a 700 ms SOA becomes 42 frames = 700.0 ms). Always
+# read the rounding report printed by check_install.py for your monitor.
+
+# Uncomment to send real EEG triggers:
+# triggers:
+#   backend: serial_bp
+#   serial_bp:
+#     port: "COM3"

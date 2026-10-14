@@ -1,0 +1,36 @@
+# ---------------------------------------------------------------------
+# Collected data NEVER belongs in version control.
+# Participant data is pseudonymised but still personal data under GDPR,
+# and this repository may be shared or made public.
+# ---------------------------------------------------------------------
+data/
+demo_data/
+*_beh.csv
+*_beh.json
+*_sessionlog.json
+autopilot_injected.json
+
+# Generated proofs and previews (regenerate with tools/preview_screens.py)
+screens/
+screen_proofs/
+
+# Local machine overrides - these describe one specific PC, not the study
+try_here_overrides.yaml
+local_*.yaml
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+
+# PsychoPy
+*.log
+lastrun.py
+
+# OS / editor
+Thumbs.db
+.DS_Store
+.vscode/
+.idea/

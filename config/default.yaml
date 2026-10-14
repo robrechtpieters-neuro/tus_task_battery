@@ -1,0 +1,412 @@
+# =====================================================================
+#  TUS DENTATE NUCLEUS TASK BATTERY - master configuration
+# =====================================================================
+#  Every parameter the experiment uses lives in this file. The Python
+#  code contains NO hard-coded timings, sizes, colours or trial counts.
+#  To change the study, change this file - not the code.
+#
+#  CONVENTIONS
+#    *_s      : seconds
+#    *_ms     : milliseconds
+#    *_px     : screen pixels
+#    [a, b]   : a uniform random range (inclusive), re-drawn each trial
+#    colours  : hex strings, always quoted (an unquoted # starts a comment)
+#    sizes    : expressed in `display.units` (default: degrees of visual angle)
+#
+#  To customise without touching this file, copy the keys you want into a
+#  second YAML file and run:   python run_experiment.py --config my_lab.yaml
+#  The two are deep-merged, so your file only needs the keys you change.
+# =====================================================================
+
+
+# ---------------------------------------------------------------------
+# SESSION
+# ---------------------------------------------------------------------
+session:
+  study_name: "TUS-DN"
+  data_dir: "data"
+
+  # Fields shown in the start-up dialog. A list becomes a drop-down menu.
+  # NOTE: `condition_code` is the BLINDED code from the allocation file.
+  # The person running the tasks must never enter the real condition.
+  dialog:
+    participant: ""
+    session: ["1", "2", "3"]
+    phase: ["familiarisation", "post_tus"]
+    run: ["0", "1", "2", "3"]
+    condition_code: ""
+    experimenter: ""
+
+  # Which schedule runs if --schedule is not given on the command line.
+  default_schedule: "post_tus"
+
+
+# ---------------------------------------------------------------------
+# DISPLAY
+# ---------------------------------------------------------------------
+display:
+  # 'deg'    = degrees of visual angle. Correct, but needs the monitor
+  #            block below to be accurate.
+  # 'height' = fraction of screen height. Needs no calibration and works
+  #            on any monitor, but you must rescale every size below.
+  units: "deg"
+
+  fullscreen: true
+  screen: 0
+  background: "#808080"
+  mouse_visible: false
+
+  # The program measures the true refresh rate at start-up. If it differs
+  # from nominal_refresh_hz by more than tolerance_hz it stops, because
+  # frame-locked timing would be silently wrong.
+  nominal_refresh_hz: 144
+  tolerance_hz: 5
+  measure_refresh: true
+  allow_refresh_mismatch: false   # true = warn but continue (piloting only)
+
+  monitor:
+    name: "lab_monitor"
+    width_cm: 53.0
+    distance_cm: 80.0
+    resolution: [1920, 1080]
+
+  fixation:
+    size: 0.4
+    color: "#FFFFFF"
+
+  # Instruction and feedback text. All sizes are fractions of screen height,
+  # so they are identical on any monitor.
+  #
+  # Dark text on the mid-grey background is considerably easier to read than
+  # white (contrast ratio ~6:1 rather than ~3:1). The stimuli stay bright.
+  text:
+    color: "#14232B"
+    heading_color: "#0E2230"
+    muted_color: "#46565F"
+    height: 0.040          # body text
+    heading_height: 0.055
+    small_height: 0.030
+    big_height: 0.130      # the countdown digits
+    # Line length. 0.86 keeps a comfortable ~55 characters per line; the full
+    # screen is 1.78 wide in these units, which is far too wide to read.
+    wrap_width: 0.86
+
+  # Participant-facing screens.
+  ui:
+    # Key presses are ignored for this long on any instruction or break
+    # screen, so a stray press left over from the task cannot skip a screen
+    # before it has been read.
+    min_advance_s: 1.0
+    swatch_size: 0.058     # the colour square shown in on-screen legends
+    countdown_from: 3
+
+  # White patch in a screen corner, flashed on every critical event, so a
+  # photodiode can recover true stimulus onsets offline. Cover it with the
+  # sensor; it is invisible to the participant once taped over.
+  photodiode:
+    enabled: true
+    corner: "bottom_right"     # bottom_right | bottom_left | top_right | top_left
+    size_px: 80
+    on_color: "#FFFFFF"
+    off_color: "#000000"
+    n_frames: 2
+
+
+# ---------------------------------------------------------------------
+# RESPONSES
+# ---------------------------------------------------------------------
+response:
+  backend: "keyboard"          # keyboard | cedrus
+
+  cedrus:
+    device_index: 0
+    # Map physical button numbers to the logical names used below.
+    button_map: {right_hand: 3, left_hand: 0}
+
+  keymap:
+    right_hand: ["j"]
+    left_hand: ["f"]
+    advance: ["space"]
+    reread: ["r"]        # at a break: show the instructions again
+    quit: ["escape"]
+
+  # A press within this window of target onset cannot be a real reaction:
+  # it is scored as an anticipation, not a response. 100 ms is the exclusion
+  # threshold used by Breska & Ivry (2018, 2020).
+  anticipation_s: 0.100
+
+
+# ---------------------------------------------------------------------
+# EEG TRIGGERS
+# ---------------------------------------------------------------------
+triggers:
+  # none      = no hardware, codes only written to the data file (safe default)
+  # parallel  = parallel port / LPT
+  # serial_bp = Brain Products TriggerBox on a virtual COM port
+  # lsl       = Lab Streaming Layer marker outlet
+  backend: "none"
+
+  parallel:
+    address: "0x0378"
+
+  serial_bp:
+    port: "COM3"
+    baudrate: 2000000
+
+  lsl:
+    stream_name: "TUS_DN_markers"
+
+  pulse_ms: 5                  # line held high this long, then reset to 0
+
+  # Codes are looked up by name. Keep this table and your EEG analysis
+  # script in sync - it is the contract between them.
+  codes:
+    # --- generic ---
+    task_start: 1
+    task_end: 2
+    block_start: 3
+    block_end: 4
+
+    # --- temporal orienting: cues ---
+    to_cue_first: 11
+    to_cue_other: 12
+
+    # --- temporal orienting: warning signal (context_soa) ---
+    to_warning_rhythm_short: 13
+    to_warning_rhythm_long: 14
+    to_warning_interval_short: 15
+    to_warning_interval_long: 16
+
+    # --- temporal orienting: target (context_soa_validity) ---
+    to_target_rhythm_short_valid: 21
+    to_target_rhythm_short_invalid: 22
+    to_target_rhythm_long_valid: 23
+    to_target_rhythm_long_invalid: 24
+    to_target_interval_short_valid: 25
+    to_target_interval_short_invalid: 26
+    to_target_interval_long_valid: 27
+    to_target_interval_long_invalid: 28
+
+    to_catch_rhythm_short: 29
+    to_catch_rhythm_long: 29
+    to_catch_interval_short: 29
+    to_catch_interval_long: 29
+
+    to_response: 30
+    to_anticipation: 31
+
+    # --- self-timing: cue (delay_hand) ---
+    st_cue_short_right: 41
+    st_cue_medium_right: 42
+    st_cue_long_right: 43
+    st_cue_short_left: 44
+    st_cue_medium_left: 45
+    st_cue_long_left: 46
+    st_start_right: 47
+    st_start_left: 48
+    st_response_right: 49
+    st_response_left: 50
+
+    # --- simple reaction time ---
+    rt_target: 61
+    rt_response: 62
+    rt_anticipation: 63
+
+    # --- resting state ---
+    rest_eyes_open_start: 71
+    rest_eyes_open_end: 72
+    rest_eyes_closed_start: 73
+    rest_eyes_closed_end: 74
+
+
+# ---------------------------------------------------------------------
+# TASKS
+# ---------------------------------------------------------------------
+tasks:
+
+  # ===================================================================
+  # TASK 1 - TEMPORAL ORIENTING (the primary task)
+  #
+  #   RHYTHM   : cue cue cue  ->  WS  ->  target      (all one SOA apart)
+  #   INTERVAL : cue cue  ->  long random gap  ->  WS  ->  target
+  #
+  #   Valid trials: target arrives one SOA after the warning signal.
+  #   Invalid     : target arrives at the OTHER SOA instead.
+  # ===================================================================
+  temporal_orienting:
+    soa_s:
+      short: 0.700
+      long: 1.200
+
+    n_cues:
+      rhythm: 3                  # 3 red squares + the WS = a 4-stimulus beat
+      interval: 2                # 2 red squares define one isolated interval
+
+    # The rhythm-breaking pause between the last cue and the WS in interval
+    # blocks, as a multiple of that trial's SOA. Breska & Ivry use two
+    # DISCRETE multipliers (not a continuous range), so the stream is
+    # non-isochronous while the cued interval stays unambiguous.
+    interval_gap_multiplier: [1.5, 2.5]
+
+    # 5.5 deg matches Breska & Ivry (2020). The square is drawn over the
+    # fixation cross, as in the original.
+    cue:
+      duration_s: 0.100
+      color: "#E03131"
+      size: 5.5
+    warning:
+      duration_s: 0.100
+      color: "#FFFFFF"
+      size: 5.5
+    target:
+      duration_s: 0.100
+      color: "#2F9E44"
+      size: 5.5
+
+    fixation_lead_s: 0.500       # fixation alone before the first cue
+
+    trials:
+      per_cell: 40               # TARGET trials per (context x SOA) cell
+      valid_proportion: 0.75     # of the target trials (Breska & Ivry 2020)
+      catch_proportion: 0.25     # of ALL trials in the cell (ibid.)
+
+    practice_trials:
+      per_cell: 4                # 4 target + catch per (context x SOA) = ~20
+
+    response_hand: "right"
+    response_window_s: 3.000     # Breska & Ivry allow 3 s before "no response"
+    end_trial_on_response: true  # so the deadline only costs time on misses
+    iti_s: [0.800, 1.400]
+
+    feedback:
+      show_anticipation: true    # responded before/too soon after the target
+      show_miss: true            # no response within the deadline
+      show_false_alarm: true     # responded on a catch trial
+      duration_s: 1.300          # long enough to read without breaking the rhythm
+
+    # Context is blocked; SOA is randomised WITHIN each block (see trials.py).
+    # Context order is rotated by run number so neither is always first.
+    context_order: ["rhythm", "interval", "rhythm", "interval"]
+    rotate_block_order_by_run: true
+
+    break_between_blocks: true
+
+  # ===================================================================
+  # TASK 2 - SELF-TIMED ACTION INITIATION
+  #   A colour cue names the delay. The fixation point disappears (the
+  #   START event). The participant presses at the instructed delay with
+  #   no go-signal of any kind.
+  # ===================================================================
+  self_timing:
+    delays_s:
+      short: 0.600
+      medium: 1.000
+      long: 1.600
+
+    cue_colors:                  # one per delay label above
+      short: "#1971C2"
+      medium: "#F08C00"
+      long: "#9C36B5"
+    cue_size: 1.6
+    cue_duration_s: 0.500
+
+    cue_to_start_s: [0.800, 1.200]   # fixation-only period after the cue
+    max_response_s: 4.000
+    iti_s: [0.800, 1.400]
+
+    trials_per_cell: 24          # per delay, per hand
+    hands: ["right", "left"]
+    # Hand block order alternates with session number so it is counterbalanced.
+    alternate_hand_order_by_session: true
+
+    practice:
+      enabled: true
+      trials_per_delay: 6
+      feedback_duration_s: 1.400
+      good_window_pct: 15        # +/- this % of the target delay counts as "good"
+
+  # ===================================================================
+  # TASK 3 - SIMPLE REACTION TIME (specificity control)
+  #   Unpredictable onset, nothing to anticipate. Should show NO effect.
+  # ===================================================================
+  simple_rt:
+    n_trials: 60
+    foreperiod_s: [1.0, 4.0]
+    target:
+      color: "#2F9E44"
+      size: 1.6
+      duration_s: 0.100
+    response_hand: "right"
+    response_window_s: 1.200
+    iti_s: [0.600, 1.000]
+
+  # ===================================================================
+  # TASK 4 - RESTING STATE EEG
+  # ===================================================================
+  resting:
+    eyes_open_s: 180
+    eyes_closed_s: 180
+    order: ["eyes_open", "eyes_closed"]
+    beep_at_end: true            # auditory cue to re-open the eyes
+    beep_hz: 750
+    beep_s: 0.400
+
+
+# ---------------------------------------------------------------------
+# SCHEDULES
+#   A schedule is an ordered list of task runs. `label` is written into
+#   the data filename, so keep labels unique within a session.
+# ---------------------------------------------------------------------
+schedules:
+
+  # --- Session 0: familiarisation, at the imaging visit ---
+  #     Every task is practised ONCE here, so nothing in a stimulation
+  #     session needs a warm-up. Practice trials are not written to file.
+  familiarisation:
+    - {task: temporal_orienting, label: "fam", run_index: 0, practice: true}
+    - {task: self_timing,        label: "fam", practice: true}
+    - {task: simple_rt,          label: "fam"}
+
+  # --- the stimulation session: ONE pass, immediately after sonication ---
+  #     Matches proposal section 13: T+5 to T+50 min.
+  post_tus:
+    - {task: temporal_orienting, label: "run1", run_index: 1}
+    - {task: self_timing,        label: "post", practice: false}
+    - {task: simple_rt,          label: "post"}
+    - {task: resting,            label: "restpost"}
+
+  # --- single tasks, for restarting one part after an interruption ---
+  to_only:   [{task: temporal_orienting, label: "run1", run_index: 1}]
+  st_only:   [{task: self_timing, label: "only", practice: false}]
+  rt_only:   [{task: simple_rt,   label: "only"}]
+  rest_only: [{task: resting,    label: "only"}]
+
+  # --- everything, tiny, for walking through the battery in ~4 min ---
+  demo:
+    - {task: temporal_orienting, label: "demo", run_index: 0}
+    - {task: self_timing,        label: "demo", practice: true}
+    - {task: simple_rt,          label: "demo"}
+    - {task: resting,            label: "demo"}
+
+
+# ---------------------------------------------------------------------
+# DEMO OVERRIDES
+#   Applied on top of everything above when you pass --demo. Lets you see
+#   the whole battery quickly without editing any real parameter.
+# ---------------------------------------------------------------------
+demo_overrides:
+  display:
+    fullscreen: false
+  tasks:
+    temporal_orienting:
+      trials: {per_cell: 4}
+      practice_trials: {per_cell: 2}
+      break_between_blocks: false
+    self_timing:
+      trials_per_cell: 3
+      practice: {trials_per_delay: 2}
+    simple_rt:
+      n_trials: 6
+    resting:
+      eyes_open_s: 10
+      eyes_closed_s: 10

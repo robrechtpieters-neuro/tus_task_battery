@@ -1,0 +1,11 @@
+# Core - required
+psychopy>=2023.2.0
+pyyaml>=5.4
+
+# Optional - install only if you use the matching backend
+# pyserial>=3.5     # triggers.backend: serial_bp  (Brain Products TriggerBox)
+# pylsl>=1.16       # triggers.backend: lsl
+# pyxid2>=1.0       # response.backend: cedrus     (Cedrus RB-x40 response box)
+#
+# The parallel-port backend needs no extra package: it uses psychopy.parallel.
+# On 64-bit Windows a parallel port also needs inpout32/inpoutx64 installed.
